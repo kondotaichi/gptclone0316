@@ -5,7 +5,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface ChatWindowProps {
     userId: string;
-    threadId: string; // スレッド名（文字列 or 数値）
+    threadId: string;
 }
 
 interface Message {
@@ -18,82 +18,75 @@ interface Message {
 
 const ChatWindow: React.FC<ChatWindowProps> = ({ userId, threadId }) => {
     const [messages, setMessages] = useState<Message[]>([]);
-    const [dbThreadId, setDbThreadId] = useState<number | null>(null); // データベースのスレッド ID
     const [input, setInput] = useState("");
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    // ✅ スレッド名からデータベースのスレッド ID を取得
+    // ✅ スレッドのメッセージを取得
     useEffect(() => {
-        axios.get(`${API_BASE_URL}/threads`)
-            .then(res => {
-                const thread = res.data.find((t: any) => t.title === threadId || t.id.toString() === threadId);
-                if (thread) {
-                    setDbThreadId(thread.id);
-                } else {
-                    console.error("スレッドが見つかりません:", threadId);
-                }
-            })
-            .catch(err => console.error("スレッド取得エラー:", err));
-    }, [threadId]);
+        const numericThreadId = Number(threadId); // ✅ `thread_id` を `number` に変換
 
-    // ✅ メッセージ取得（スレッド ID が取得できたら）
-    useEffect(() => {
-        if (dbThreadId !== null) {
-            axios.get(`${API_BASE_URL}/messages`, {
-                params: { thread_id: dbThreadId }
-            })
-                .then(res => {
-                    console.log("取得したメッセージ:", res.data);
-                    setMessages(res.data);
-                })
-                .catch(err => console.error("メッセージ取得エラー:", err));
+        if (isNaN(numericThreadId)) {
+            console.error("エラー: threadId が数値ではありません", threadId);
+            return;
         }
-    }, [dbThreadId]);
+
+        axios.get(`${API_BASE_URL}/messages?thread_id=${numericThreadId}`)
+            .then(res => {
+                console.log("取得したメッセージ:", res.data);
+                setMessages(res.data);
+            })
+            .catch(err => {
+                console.error(`メッセージ取得エラー (thread_id=${numericThreadId}):`, err);
+            });
+    }, [threadId]);
 
     // ✅ 最新のメッセージを常に一番下に表示
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages.length]);
 
-    // ✅ メッセージを送信し、AI の応答を受け取る
+    // ✅ メッセージを送信し、AIの応答を受け取る
     const sendMessage = async () => {
-        if (!input.trim() || dbThreadId === null) return;
+        if (!input.trim()) return;
+
+        const numericThreadId = Number(threadId);
+        if (isNaN(numericThreadId)) {
+            console.error("エラー: threadId が数値ではありません", threadId);
+            return;
+        }
 
         try {
             // ユーザーのメッセージを追加
             const userMessage: Message = {
-                thread_id: dbThreadId,
+                thread_id: numericThreadId, // ✅ `thread_id` を数値に変換
                 user_id: userId,
                 content: input
             };
-            setMessages((prev) => [...prev, userMessage]);
+            setMessages(prev => [...prev, userMessage]);
 
             // バックエンドにメッセージ送信
             const res = await axios.post(`${API_BASE_URL}/messages`, userMessage);
 
-            console.log("AI の応答:", res.data);
+            console.log("AIの応答:", res.data);
 
-            // AI の応答を追加
+            // AIの応答を追加
             const aiMessage: Message = {
-                thread_id: dbThreadId,
+                thread_id: numericThreadId,
                 user_id: "AI",
                 content: res.data.response
             };
-            setMessages((prev) => [...prev, aiMessage]);
+            setMessages(prev => [...prev, aiMessage]);
 
             setInput("");
         } catch (err: any) {
-            console.error("メッセージ送信エラー:", err.response?.data || err.message);
-            setMessages((prev) => [
-                ...prev,
-                { thread_id: dbThreadId, user_id: "AI", content: "AI応答エラー" }
-            ]);
+            console.error(`メッセージ送信エラー (thread_id=${numericThreadId}):`, err.response?.data || err.message);
+            setMessages(prev => [...prev, { thread_id: numericThreadId, user_id: "AI", content: "AI応答エラー" }]);
         }
     };
 
     return (
         <div className="chat-window">
-            <h2>Thread: {threadId} (ID: {dbThreadId ?? "取得中"})</h2>
+            <h2>Thread {threadId}</h2>
             <div className="messages">
                 {messages.map((msg, index) => (
                     <div key={index} className={`message ${msg.user_id === "AI" ? "ai" : "user"}`}>
@@ -108,7 +101,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ userId, threadId }) => {
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="Type a message..."
                 />
-                <button onClick={sendMessage} disabled={dbThreadId === null}>Send</button>
+                <button onClick={sendMessage}>Send</button>
             </div>
         </div>
     );
