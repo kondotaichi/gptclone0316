@@ -10,10 +10,10 @@ interface ChatWindowProps {
 
 interface Message {
     id?: number;
-    thread_id: string;
+    thread_id: number;
     user_id: string;
     content: string;
-    response?: string;
+    response?: string;  // ✅ AIの応答を明示的に分ける
 }
 
 const ChatWindow: React.FC<ChatWindowProps> = ({ userId, threadId }) => {
@@ -21,12 +21,19 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ userId, threadId }) => {
     const [input, setInput] = useState("");
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    // ✅ スレッドのメッセージを取得（AIの応答も含める）
+    // ✅ スレッドのメッセージを取得
     useEffect(() => {
         axios.get(`${API_BASE_URL}/messages?thread_id=${threadId}`)
             .then(res => {
                 console.log("取得したメッセージ:", res.data);
-                setMessages(res.data);
+                
+                // ✅ AI の応答を別メッセージとして追加
+                const formattedMessages = res.data.flatMap((msg: Message) => [
+                    { ...msg, type: "user" },  // ✅ ユーザーのメッセージ
+                    msg.response ? { thread_id: msg.thread_id, user_id: "AI", content: msg.response, type: "ai" } : null
+                ]).filter(Boolean); // `null` を除外
+
+                setMessages(formattedMessages);
             })
             .catch(err => console.error("メッセージ取得エラー:", err));
     }, [threadId]);
@@ -43,28 +50,31 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ userId, threadId }) => {
         try {
             // ユーザーのメッセージを追加
             const userMessage: Message = {
-                thread_id: threadId,
+                thread_id: Number(threadId), // ✅ `thread_id` を整数に変換
                 user_id: userId,
                 content: input
             };
-            setMessages(prev => [...prev, userMessage]);
+            setMessages(prev => [...prev, { ...userMessage, type: "user" }]);
 
             // バックエンドにメッセージ送信
             const res = await axios.post(`${API_BASE_URL}/messages`, userMessage);
+
             console.log("AIの応答:", res.data);
 
-            // AIの応答を追加（responseも保存）
-            const aiMessage: Message = {
-                thread_id: threadId,
-                user_id: "AI",
-                content: res.data.response || "AI応答エラー"
-            };
-            setMessages(prev => [...prev, aiMessage]);
+            // AIの応答を追加
+            if (res.data.response) {
+                const aiMessage: Message = {
+                    thread_id: Number(threadId),
+                    user_id: "AI",
+                    content: res.data.response
+                };
+                setMessages(prev => [...prev, { ...aiMessage, type: "ai" }]);
+            }
 
             setInput("");
         } catch (err) {
             console.error("メッセージ送信エラー:", err);
-            setMessages(prev => [...prev, { thread_id: threadId, user_id: "AI", content: "AI応答エラー" }]);
+            setMessages(prev => [...prev, { thread_id: Number(threadId), user_id: "AI", content: "AI応答エラー" }]);
         }
     };
 
@@ -75,7 +85,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ userId, threadId }) => {
                 {messages.map((msg, index) => (
                     <div key={index} className={`message ${msg.user_id === "AI" ? "ai" : "user"}`}>
                         <p>{msg.content}</p>
-                        {msg.response && <p className="ai-response">{msg.response}</p>}
                     </div>
                 ))}
                 <div ref={messagesEndRef} />
