@@ -10,7 +10,7 @@ interface ChatWindowProps {
 
 interface Message {
     id?: number;
-    thread_id: string | number;
+    thread_id: string;
     user_id: string;
     content: string;
     response?: string;
@@ -21,7 +21,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ userId, threadId }) => {
     const [input, setInput] = useState("");
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    // ✅ スレッドのメッセージを取得
+    // ✅ スレッドのメッセージを取得（AIの応答も含める）
     useEffect(() => {
         axios.get(`${API_BASE_URL}/messages?thread_id=${threadId}`)
             .then(res => {
@@ -43,29 +43,28 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ userId, threadId }) => {
         try {
             // ユーザーのメッセージを追加
             const userMessage: Message = {
-                thread_id: threadId, // ✅ `thread_id` を整数に変換
+                thread_id: threadId,
                 user_id: userId,
-                content: input // ✅ `message` ではなく `content`
+                content: input
             };
             setMessages(prev => [...prev, userMessage]);
 
             // バックエンドにメッセージ送信
             const res = await axios.post(`${API_BASE_URL}/messages`, userMessage);
-
             console.log("AIの応答:", res.data);
 
-            // AIの応答を追加
+            // AIの応答を追加（responseも保存）
             const aiMessage: Message = {
-                thread_id: Number(threadId),
+                thread_id: threadId,
                 user_id: "AI",
-                content: res.data.response
+                content: res.data.response || "AI応答エラー"
             };
             setMessages(prev => [...prev, aiMessage]);
 
             setInput("");
         } catch (err) {
             console.error("メッセージ送信エラー:", err);
-            setMessages(prev => [...prev, { thread_id: Number(threadId), user_id: "AI", content: "AI応答エラー" }]);
+            setMessages(prev => [...prev, { thread_id: threadId, user_id: "AI", content: "AI応答エラー" }]);
         }
     };
 
@@ -76,6 +75,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ userId, threadId }) => {
                 {messages.map((msg, index) => (
                     <div key={index} className={`message ${msg.user_id === "AI" ? "ai" : "user"}`}>
                         <p>{msg.content}</p>
+                        {msg.response && <p className="ai-response">{msg.response}</p>}
                     </div>
                 ))}
                 <div ref={messagesEndRef} />
