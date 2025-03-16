@@ -8,8 +8,16 @@ interface ChatWindowProps {
     threadId: string;
 }
 
+interface Message {
+    id?: number;
+    thread_id: number;
+    user_id: string;
+    content: string;
+    response?: string;
+}
+
 const ChatWindow: React.FC<ChatWindowProps> = ({ userId, threadId }) => {
-    const [messages, setMessages] = useState<any[]>([]);
+    const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -17,41 +25,43 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ userId, threadId }) => {
     useEffect(() => {
         axios.get(`${API_BASE_URL}/messages?thread_id=${threadId}`)
             .then(res => {
-                console.log("取得したメッセージ:", res.data); // デバッグ用
+                console.log("取得したメッセージ:", res.data);
                 setMessages(res.data);
             })
             .catch(err => console.error("メッセージ取得エラー:", err));
     }, [threadId]);
 
-    // ✅ 最新のメッセージが常に一番下に表示されるようにする
+    // ✅ 最新のメッセージを常に一番下に表示
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages]);
+    }, [messages.length]);
 
     // ✅ メッセージを送信し、AIの応答を受け取る
     const sendMessage = async () => {
         if (!input.trim()) return;
+
         try {
-            // ユーザーのメッセージを先に追加
-            const userMessage = { user_id: userId, content: input, type: "user" };
+            // ユーザーのメッセージを追加
+            const userMessage: Message = { thread_id: Number(threadId), user_id: userId, content: input };
             setMessages(prev => [...prev, userMessage]);
 
+            // バックエンドにメッセージ送信
             const res = await axios.post(`${API_BASE_URL}/messages`, {
-                thread_id: threadId,
+                thread_id: Number(threadId),
                 user_id: userId,
                 content: input
             });
 
-            console.log("AIの応答:", res.data); // デバッグ用
+            console.log("AIの応答:", res.data);
 
             // AIの応答を追加
-            const aiMessage = { user_id: "AI", content: res.data.response, type: "ai" };
+            const aiMessage: Message = { thread_id: Number(threadId), user_id: "AI", content: res.data.response };
             setMessages(prev => [...prev, aiMessage]);
 
             setInput("");
         } catch (err) {
             console.error("メッセージ送信エラー:", err);
-            setMessages(prev => [...prev, { user_id: "AI", content: "AI応答エラー", type: "ai" }]);
+            setMessages(prev => [...prev, { thread_id: Number(threadId), user_id: "AI", content: "AI応答エラー" }]);
         }
     };
 
