@@ -10,7 +10,7 @@ interface ChatWindowProps {
 
 interface Message {
     id?: number;
-    thread_id: number;
+    thread_id: string | number;
     user_id: string;
     content: string;
     response?: string;
@@ -43,7 +43,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ userId, threadId }) => {
         try {
             // ユーザーのメッセージを追加
             const userMessage: Message = {
-                thread_id: Number(threadId), // ✅ `thread_id` を整数に変換
+                thread_id: threadId, // ✅ `thread_id` を整数に変換
                 user_id: userId,
                 content: input // ✅ `message` ではなく `content`
             };
