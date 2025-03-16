@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
+import { GoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -13,16 +13,16 @@ const LoginPage = () => {
         const storedUser = localStorage.getItem("user");
         if (storedUser) {
             setUser(JSON.parse(storedUser));
-            navigate("/chat"); // すでにログイン済みならチャットページへ
+            navigate("/chat");
         }
     }, [navigate]);
 
-    const handleLogin = async (credentialResponse: CredentialResponse) => {
+    const handleLogin = async (credentialResponse: any) => {
         try {
             const res = await axios.post(`${API_BASE_URL}/auth/google`, { token: credentialResponse.credential });
             setUser(res.data);
-            localStorage.setItem("user", JSON.stringify(res.data)); // ログイン情報を保存
-            navigate("/chat"); // チャット画面へ自動遷移
+            localStorage.setItem("user", JSON.stringify(res.data));
+            navigate("/chat");
         } catch (error) {
             console.error("Googleログインエラー:", error);
         }
@@ -31,10 +31,7 @@ const LoginPage = () => {
     return (
         <div className="login-container">
             <h1>ChatGPT App</h1>
-            <GoogleLogin
-                onSuccess={handleLogin}
-                onError={() => console.log("Login Failed")}
-            />
+            <GoogleLogin onSuccess={handleLogin} onError={() => console.log("Login Failed")} />
         </div>
     );
 };

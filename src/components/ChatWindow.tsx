@@ -23,12 +23,21 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ userId, threadId }) => {
 
     // ✅ スレッドのメッセージを取得
     useEffect(() => {
-        axios.get(`${API_BASE_URL}/messages?thread_id=${threadId}`)
+        const numericThreadId = Number(threadId); // ✅ `thread_id` を `number` に変換
+
+        if (isNaN(numericThreadId)) {
+            console.error("エラー: threadId が数値ではありません", threadId);
+            return;
+        }
+
+        axios.get(`${API_BASE_URL}/messages?thread_id=${numericThreadId}`)
             .then(res => {
                 console.log("取得したメッセージ:", res.data);
                 setMessages(res.data);
             })
-            .catch(err => console.error("メッセージ取得エラー:", err));
+            .catch(err => {
+                console.error(`メッセージ取得エラー (thread_id=${numericThreadId}):`, err);
+            });
     }, [threadId]);
 
     // ✅ 最新のメッセージを常に一番下に表示
@@ -40,28 +49,38 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ userId, threadId }) => {
     const sendMessage = async () => {
         if (!input.trim()) return;
 
+        const numericThreadId = Number(threadId);
+        if (isNaN(numericThreadId)) {
+            console.error("エラー: threadId が数値ではありません", threadId);
+            return;
+        }
+
         try {
             // ユーザーのメッセージを追加
-            const userMessage: Message = { thread_id: Number(threadId), user_id: userId, content: input };
+            const userMessage: Message = {
+                thread_id: numericThreadId, // ✅ `thread_id` を数値に変換
+                user_id: userId,
+                content: input
+            };
             setMessages(prev => [...prev, userMessage]);
 
             // バックエンドにメッセージ送信
-            const res = await axios.post(`${API_BASE_URL}/messages`, {
-                thread_id: Number(threadId),
-                user_id: userId,
-                content: input
-            });
+            const res = await axios.post(`${API_BASE_URL}/messages`, userMessage);
 
             console.log("AIの応答:", res.data);
 
             // AIの応答を追加
-            const aiMessage: Message = { thread_id: Number(threadId), user_id: "AI", content: res.data.response };
+            const aiMessage: Message = {
+                thread_id: numericThreadId,
+                user_id: "AI",
+                content: res.data.response
+            };
             setMessages(prev => [...prev, aiMessage]);
 
             setInput("");
-        } catch (err) {
-            console.error("メッセージ送信エラー:", err);
-            setMessages(prev => [...prev, { thread_id: Number(threadId), user_id: "AI", content: "AI応答エラー" }]);
+        } catch (err: any) {
+            console.error(`メッセージ送信エラー (thread_id=${numericThreadId}):`, err.response?.data || err.message);
+            setMessages(prev => [...prev, { thread_id: numericThreadId, user_id: "AI", content: "AI応答エラー" }]);
         }
     };
 
