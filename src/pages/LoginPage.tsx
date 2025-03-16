@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -7,7 +7,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const LoginPage = () => {
     const navigate = useNavigate();
-    const [user, setUser] = useState<any>(null);
+    const [, setUser] = useState<any>(null);
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");

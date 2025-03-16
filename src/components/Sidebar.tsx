@@ -5,7 +5,7 @@ interface SidebarProps {
     navigate: (path: string) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ userId, navigate }) => {
+const Sidebar: React.FC<SidebarProps> = ({ navigate }) => {
     const [threadTitle, setThreadTitle] = useState("");
     const [threads, setThreads] = useState<string[]>(["new", "あたら"]);
 

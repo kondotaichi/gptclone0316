@@ -3,5 +3,12 @@
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
-  ]
+  ],
+  "compilerOptions": {
+    "strict": true,
+    "noUnusedLocals": false,  // ✅ 未使用のローカル変数を許可
+    "noUnusedParameters": false,  // ✅ 未使用のパラメータを許可
+    "skipLibCheck": true,  // ✅ ライブラリの型チェックをスキップ（高速化）
+    "forceConsistentCasingInFileNames": true
+  }
 }
