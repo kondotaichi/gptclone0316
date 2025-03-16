@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { GoogleLogin } from "@react-oauth/google";
+import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -17,7 +17,7 @@ const LoginPage = () => {
         }
     }, [navigate]);
 
-    const handleLogin = async (credentialResponse: any) => {
+    const handleLogin = async (credentialResponse: CredentialResponse) => {
         try {
             const res = await axios.post(`${API_BASE_URL}/auth/google`, { token: credentialResponse.credential });
             setUser(res.data);
@@ -31,7 +31,10 @@ const LoginPage = () => {
     return (
         <div className="login-container">
             <h1>ChatGPT App</h1>
-            <GoogleLogin onSuccess={handleLogin} onError={() => console.log("Login Failed")} />
+            <GoogleLogin
+                onSuccess={handleLogin}
+                onError={() => console.log("Login Failed")}
+            />
         </div>
     );
 };
