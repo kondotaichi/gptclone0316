@@ -5,7 +5,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface ChatWindowProps {
     userId: string;
-    threadId: string; // スレッドID（数値 or 文字列）
+    threadId: string; // スレッド名（文字列 or 数値）
 }
 
 interface Message {
@@ -18,25 +18,25 @@ interface Message {
 
 const ChatWindow: React.FC<ChatWindowProps> = ({ userId, threadId }) => {
     const [messages, setMessages] = useState<Message[]>([]);
-    const [dbThreadId, setDbThreadId] = useState<number | null>(null); // データベースのスレッドID
+    const [dbThreadId, setDbThreadId] = useState<number | null>(null); // データベースのスレッド ID
     const [input, setInput] = useState("");
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    // ✅ スレッド名からデータベースのスレッドIDを取得
+    // ✅ スレッド名からデータベースのスレッド ID を取得
     useEffect(() => {
         axios.get(`${API_BASE_URL}/threads`)
             .then(res => {
-                const thread = res.data.find((t: any) => t.title === threadId); // スレッドタイトルで検索
+                const thread = res.data.find((t: any) => t.title === threadId || t.id.toString() === threadId);
                 if (thread) {
                     setDbThreadId(thread.id);
                 } else {
-                    console.error("スレッドが見つかりません");
+                    console.error("スレッドが見つかりません:", threadId);
                 }
             })
             .catch(err => console.error("スレッド取得エラー:", err));
     }, [threadId]);
 
-    // ✅ メッセージ取得（データベースのスレッドIDを使用）
+    // ✅ メッセージ取得（スレッド ID が取得できたら）
     useEffect(() => {
         if (dbThreadId !== null) {
             axios.get(`${API_BASE_URL}/messages`, {
@@ -82,8 +82,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ userId, threadId }) => {
             setMessages((prev) => [...prev, aiMessage]);
 
             setInput("");
-        } catch (err) {
-            console.error("メッセージ送信エラー:", err);
+        } catch (err: any) {
+            console.error("メッセージ送信エラー:", err.response?.data || err.message);
             setMessages((prev) => [
                 ...prev,
                 { thread_id: dbThreadId, user_id: "AI", content: "AI応答エラー" }
