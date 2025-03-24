@@ -120,7 +120,7 @@ body {
 /* 💬 各メッセージバブル */
 .message {
   max-width: 90%;
-  padding: 0px 7px; /* ← 上下をより圧縮 */
+  padding: 3px 7px; /* ← 上下をより圧縮 */
   border-radius: 10px;
   margin-bottom: 4px; /* ← メッセージ同士の間隔を縮小 */
   box-shadow: 0 0 6px rgba(0, 255, 255, 0.2);
