@@ -136,6 +136,8 @@ body {
   background: #f0f0f0;
   color: #000000;
   box-shadow: none;
+  font-family: 'Arial', sans-serif;
+
 }
 
 
@@ -150,6 +152,7 @@ body {
   border-radius: 15px;
   max-width: 70%;
   animation: fadeInLeft 0.3s ease;
+  font-family: 'Arial', sans-serif;
 }
 
 /* ✅ メッセージ入力エリア */
