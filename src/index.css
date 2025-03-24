@@ -128,20 +128,29 @@ body {
 
 /* ✅ ユーザーのメッセージ */
 .message.user {
+  align-self: flex-end;
+  padding: 12px;
+  border-radius: 15px;
+  max-width: 70%;
+  animation: fadeInRight 0.3s ease;
   background: #f0f0f0;
   color: #000000;
   box-shadow: none;
 }
 
 
-
 /* ✅ AIのメッセージ */
 .message.ai {
-  background: #ffffff; /* 白背景に変更 */
-  color: #000000;       /* 黒文字に変更 */
-  box-shadow: none;     /* 影を削除してシンプルに */
-}
 
+  align-self: flex-start;
+  background: #f0f0f0;
+  color: #000000;
+  box-shadow: none;
+  padding: 12px;
+  border-radius: 15px;
+  max-width: 70%;
+  animation: fadeInLeft 0.3s ease;
+}
 
 /* ✅ メッセージ入力エリア */
 .input-container {
