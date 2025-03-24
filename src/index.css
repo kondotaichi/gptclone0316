@@ -148,7 +148,7 @@ body {
 /* ✅ メッセージ入力エリア */
 .input-container {
   display: flex;
-  gap: 10px;
+  gap: 9px;
   padding: 10px;
   background: rgba(30, 41, 59, 0.9);
   border-radius: 5px;
