@@ -119,39 +119,29 @@ body {
 
 /* ✅ メッセージバブル */
 .message {
-  max-width: 70%;
+  max-width: 90%; /* ← 70% から広げる */
   padding: 12px;
   border-radius: 15px;
   margin-bottom: 8px;
   box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+  word-break: break-word; /* ← 長い単語やURLを折り返す */
 }
 
 /* ✅ ユーザーのメッセージ */
 .message.user {
   align-self: flex-end;
-  padding: 12px;
-  border-radius: 15px;
-  max-width: 70%;
-  animation: fadeInRight 0.3s ease;
   background: #f0f0f0;
   color: #000000;
   box-shadow: none;
   font-family: 'Arial', sans-serif;
-
 }
-
 
 /* ✅ AIのメッセージ */
 .message.ai {
-
   align-self: flex-start;
   background: #f0f0f0;
   color: #000000;
   box-shadow: none;
-  padding: 12px;
-  border-radius: 15px;
-  max-width: 70%;
-  animation: fadeInLeft 0.3s ease;
   font-family: 'Arial', sans-serif;
 }
 
