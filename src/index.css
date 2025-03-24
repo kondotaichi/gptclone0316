@@ -102,6 +102,17 @@ body {
   overflow: hidden;
 }
 
+/* 🔽 メッセージエリア */
+.messages {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  scroll-behavior: smooth;
+}
+
 .messages::-webkit-scrollbar {
   display: none;
 }
@@ -133,13 +144,6 @@ body {
   color: #000;
   font-family: 'Arial', sans-serif;
 }
-
-/* 🔽 メッセージリスト（コンテナ） */
-.messages {
-  padding: 4px 10px; /* ← メッセージ群の上下余白も削る */
-  gap: 4px; /* ← 各メッセージの間隔もさらに詰める */
-}
-
 /* ✅ メッセージ入力エリア */
 .input-container {
   display: flex;
