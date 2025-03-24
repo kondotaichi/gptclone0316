@@ -10,7 +10,7 @@ interface ChatWindowProps {
 
 interface Message {
     id?: number;
-    thread_id: number;
+    thread_id: string | number;
     user_id: string;
     content: string;
     response?: string;  // ✅ AIの応答を明示的に分ける
@@ -50,7 +50,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ userId, threadId }) => {
         try {
             // ユーザーのメッセージを追加
             const userMessage: Message = {
-                thread_id: Number(threadId), // ✅ `thread_id` を整数に変換
+                thread_id: threadId, // ✅ `thread_id` を整数に変換
                 user_id: userId,
                 content: input
             };
@@ -64,7 +64,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ userId, threadId }) => {
             // AIの応答を追加
             if (res.data.response) {
                 const aiMessage: Message = {
-                    thread_id: Number(threadId),
+                    thread_id: threadId,
                     user_id: "AI",
                     content: res.data.response
                 };
