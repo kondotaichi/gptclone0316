@@ -119,12 +119,14 @@ body {
 
 /* ✅ メッセージバブル */
 .message {
-  max-width: 90%; /* ← 70% から広げる */
-  padding: 12px;
-  border-radius: 15px;
-  margin-bottom: 8px;
-  box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
-  word-break: break-word; /* ← 長い単語やURLを折り返す */
+  max-width: 90%;
+  padding: 8px 12px; /* 上下8pxに縮小（以前は12px） */
+  border-radius: 12px; /* 少し丸みを抑えても良い */
+  margin-bottom: 4px; /* メッセージ間の隙間を減らす */
+  box-shadow: 0 0 6px rgba(0, 255, 255, 0.2); /* 控えめな影に */
+  word-break: break-word;
+  font-size: 14px; /* 少し文字を小さめに調整 */
+  line-height: 1.4; /* 行間もコンパクトに */
 }
 
 /* ✅ ユーザーのメッセージ */
