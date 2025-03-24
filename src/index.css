@@ -102,49 +102,42 @@ body {
   overflow: hidden;
 }
 
-/* 🔽 メッセージエリア */
-.messages {
-  flex-grow: 1;
-  overflow-y: auto;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  scroll-behavior: smooth;
-}
-
 .messages::-webkit-scrollbar {
   display: none;
 }
 
-/* ✅ メッセージバブル */
+/* 💬 各メッセージバブル */
 .message {
   max-width: 90%;
-  padding: 8px 12px; /* 上下8pxに縮小（以前は12px） */
-  border-radius: 12px; /* 少し丸みを抑えても良い */
-  margin-bottom: 4px; /* メッセージ間の隙間を減らす */
-  box-shadow: 0 0 6px rgba(0, 255, 255, 0.2); /* 控えめな影に */
+  padding: 6px 10px; /* ← 上下をより圧縮 */
+  border-radius: 10px;
+  margin-bottom: 4px; /* ← メッセージ同士の間隔を縮小 */
+  box-shadow: 0 0 6px rgba(0, 255, 255, 0.2);
   word-break: break-word;
-  font-size: 14px; /* 少し文字を小さめに調整 */
-  line-height: 1.4; /* 行間もコンパクトに */
+  font-size: 13px; /* ← 少し小さめに */
+  line-height: 1.4; /* ← 行間も詰める */
 }
 
-/* ✅ ユーザーのメッセージ */
+/* 💬 ユーザーメッセージ */
 .message.user {
   align-self: flex-end;
   background: #f0f0f0;
-  color: #000000;
-  box-shadow: none;
+  color: #000;
   font-family: 'Arial', sans-serif;
 }
 
-/* ✅ AIのメッセージ */
+/* 💬 AIメッセージ */
 .message.ai {
   align-self: flex-start;
   background: #f0f0f0;
-  color: #000000;
-  box-shadow: none;
+  color: #000;
   font-family: 'Arial', sans-serif;
+}
+
+/* 🔽 メッセージリスト（コンテナ） */
+.messages {
+  padding: 4px 10px; /* ← メッセージ群の上下余白も削る */
+  gap: 4px; /* ← 各メッセージの間隔もさらに詰める */
 }
 
 /* ✅ メッセージ入力エリア */
